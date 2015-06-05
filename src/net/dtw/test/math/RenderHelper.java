@@ -19,11 +19,12 @@ public class RenderHelper {
     
     public static void DrawArrow(Ray2d ray, Graphics2D g) {
         g.drawLine((int)ray.a.x, (int)ray.a.y, (int)ray.b.x, (int)ray.b.y);
-        Vec2d d = ray.getDirection();
-        Vec2d dn = d.norm().scale(5.0);
+        if (ray.a.equals(ray.b)) return;
+        Vec2d d = ray.direction();
+        Vec2d dn = d.norm().scale(-5.0);
         Vec2d on = d.orthoNorm().scale(5.0);
-        Ray2d ta = new Ray2d(ray.a.sum(on).sum(dn), ray.a);
-        Ray2d ba = new Ray2d(ray.a.sum(on.scale(-1.0)).sum(dn), ray.a);
+        Ray2d ta = Ray2d.newRay(ray.b.sum(on).sum(dn), ray.b);
+        Ray2d ba = Ray2d.newRay(ray.b.sum(on.scale(-1.0)).sum(dn), ray.b);
         g.drawLine((int)ta.a.x, (int)ta.a.y, (int)ta.b.x, (int)ta.b.y);
         g.drawLine((int)ba.a.x, (int)ba.a.y, (int)ba.b.x, (int)ba.b.y);
     }

@@ -14,9 +14,9 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import net.dtw.math.AABBd;
-import net.dtw.math.Boundsd;
+import net.dtw.math.Boundd;
 import net.dtw.math.Circled;
+import net.dtw.math.Convexd;
 import net.dtw.math.Ray2d;
 import net.dtw.math.Vec2d;
 
@@ -26,7 +26,7 @@ import net.dtw.math.Vec2d;
  */
 public class BoundsDisplay extends Component {
     
-    ArrayList<Boundsd> bounds;
+    ArrayList<Boundd> bounds;
 
     public BoundsDisplay() {
         bounds = new ArrayList<>();
@@ -37,13 +37,19 @@ public class BoundsDisplay extends Component {
                 if(e.getButton() == MouseEvent.BUTTON1){
                     //double s = Math.random()*40+40;
                     double s = 60;
-                    bounds.add(new AABBd(e.getY()+s, e.getY()-s, e.getX()+s, e.getX()-s));
+                    bounds.add(new Circled(Vec2d.newVec(e.getX(), e.getY()), 30));
                     repaint();
                 }
                 if(e.getButton() == MouseEvent.BUTTON3){
                     //double s = Math.random()*40+40;
                     double s = 60;
-                    bounds.add(new Circled(new Vec2d(e.getX(), e.getY()), s));
+                    Convexd c = new Convexd(Vec2d.newVec(e.getX(), e.getY()), new Vec2d[]{
+                        Vec2d.newVec(10, 30), Vec2d.newVec(24, 24),
+                        Vec2d.newVec(30, -4), Vec2d.newVec(14, -26),
+                        Vec2d.newVec(4, -30), Vec2d.newVec(-20, -22),
+                        Vec2d.newVec(-30, 2), Vec2d.newVec(-28, 28)});
+                    c.setRotation(Math.random()*Math.PI*2);
+                    bounds.add(c);
                     repaint();
                 }
             }
@@ -61,23 +67,21 @@ public class BoundsDisplay extends Component {
         g2.setColor(Color.black);
         g2.fillRect(0, 0, 400, 400);
         g2.setColor(Color.white);
-        for (Boundsd bound: bounds){
+        for (Boundd bound: bounds){
             for (Ray2d side:bound.getSides()){
                 g2.drawLine((int)side.a.x, (int)side.a.y, (int)side.b.x, (int)side.b.y);
             }
-            Vec2d[] verticies = bound.getPoints();
-            double[] radi = bound.getRadi();
-            for (int i = 0; i < verticies.length; i++){
-                g2.drawOval((int)(verticies[i].x-radi[i]), (int)(verticies[i].y-radi[i]), (int)radi[i]*2, (int)radi[i]*2);
+            if (bound instanceof Circled){
+                Circled c = (Circled)bound;
+                g2.drawOval((int)(c.center.x-c.radius), (int)(c.center.y-c.radius), (int)(2*c.radius), (int)(2*c.radius));
             }
         }
         g2.setColor(Color.red);
         for(int i = 0; i < bounds.size() - 1; i++){
             for(int j = i + 1; j < bounds.size(); j++){
-                Ray2d[] inter = bounds.get(i).calcSA(bounds.get(j));
-                for(Ray2d inte: inter) {
-                    RenderHelper.DrawArrow(inte, g2);
-                }
+                Vec2d od = bounds.get(i).calcSA(bounds.get(j));
+                System.out.println(od);
+                RenderHelper.DrawArrow(Ray2d.newRay(Vec2d.newVec(200, 200), Vec2d.newVec(200, 200).sum(od)), g2);
             }
         }
     }
