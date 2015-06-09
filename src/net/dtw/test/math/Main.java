@@ -19,9 +19,20 @@ public class Main {
     public static void main(String[] args) {
         JFrame f = new JFrame("Separating Axis Test");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add(new BoundsDisplay());
+        BoundsDisplay b = new BoundsDisplay();
+        f.add(b);
         f.pack();
         f.setVisible(true);
+        double r = 0.0;
+        while(true){
+            r += 0.001;
+            b.setRot(r);
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                
+            }
+        }
     }
     
 }
